@@ -1,0 +1,32 @@
+#%RAML 1.0
+title: Notification API Spec
+baseUri: https://mocksvc.mulesoft.com/mocks/0823f9f1-a39b-4736-917a-cd6a01b2b138/{version} # baseUri: http://localhost/{version}
+version: v1
+description: This API spec design highlights the power of RAML. It reuses existing RAML fragments for dataTypes, traits, resourceTypes and more to simplify and accelerate definig an API Spec. Fragments also ENSURE CONSISTENCY acrosss APIs. With consistency comes acclerated delivery due to developers familiarity with the design fragments. Overlays and extensions are available if needed to modify the API fragments.  \nRAML allows you to define RAML DataTypes and RAML NamedExamples instead of defining a schema and example for JSON and another for schema and example for XML and then trying to keep them in sync. With RAML DataTypes and NamedExamples you can support JSON & XML from one DataType and one NamedExample.
+    
+mediaType: [application/json, application/xml]
+securedBy: [passthrough]
+securitySchemes: 
+  passthrough: !include /exchange_modules/5dfb47dc-12e3-4cac-afc5-a00be32d15d8/pass-through-security-scheme/1.0.0/pass-through-security-scheme.raml
+
+uses: 
+  notification: /exchange_modules/b2cc42af-8763-43cf-a316-246ce7aefd04/notification-library/1.0.6/notification-library.raml
+  collectionRT: /exchange_modules/5dfb47dc-12e3-4cac-afc5-a00be32d15d8/collection-library/1.0.24/collection-library.raml
+
+/notifications:
+  description: The collection resourceType leverages an API fragment to create the base API. You can view this fragment by expanding the exchange_modules folder. In the predefined fragment there are five methods. You'll note in the fragment they are all optional. This allows you to only use the fragments you want in this API. You can also add additional resources and methods. Annotations extend an API by adding metadata beyond that which is standardized in this RAML specification. Overlays of standard or non-standard metadata on top of an existing API definition can specify implementation details, or provide a translation of human-oriented documentation into different languages, without changing API behavior. Extending an API definition by adding to its behavior, or overriding certain aspects, is another way to satisfy different needs.
+  type:  
+    collectionRT.collection:
+      mediaType: application/json
+
+  post:
+
+  /{id}:
+    type: 
+      collectionRT.member:
+        mediaType: application/json
+    uriParameters: 
+      id:
+        example: "1"
+        default: "1"
+    get:

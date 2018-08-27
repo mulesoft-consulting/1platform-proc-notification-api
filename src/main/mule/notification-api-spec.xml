@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:notification-apifor-twilio-spec="http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec" xmlns:notification-apifor-gmail-spec="http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec/current/mule-notification-apifor-gmail-spec.xsd
+http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec/current/mule-notification-apifor-twilio-spec.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="notification-api-spec-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS">
+			<tls:context >
+				<tls:key-store type="jks" path="keystore.jks" keyPassword="${keystore.password}" password="${keystore.password}" />
+			</tls:context>
+		</http:listener-connection>
+    </http:listener-config>
+    <apikit:config name="notification-api-spec-config" raml="notification-api-spec.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <api-gateway:autodiscovery apiId="15522487" doc:name="API Autodiscovery" doc:id="1b3eb301-f21a-41b7-833f-93bfeafb4be3" flowRef="notification-api-spec-main" />
+	<notification-apifor-gmail-spec:config name="Notification_API_for_GMail_Spec_Config" doc:name="Notification API for GMail Spec Config" doc:id="635c1260-7f9c-4741-80a0-9db5cfd435c0" property_host="${notification.sapi.gmail.url}" property_port="443" property_basePath="/api" property_protocol="HTTPS" property_client-id="${client.app.client_id}" property_client-secret="${client.app.client_secret}" />
+	<notification-apifor-twilio-spec:config name="Notification_API_for_Twilio_Spec_Config" doc:name="Notification API for Twilio Spec Config" doc:id="9128a001-09d5-4a03-9da0-6148ddf3f1a3" property_host="${notification.sapi.twilio.url}" property_port="443" property_basePath="/api" property_protocol="HTTPS" property_client-id="${client.app.client_id}" property_client-secret="${client.app.client_secret}" />
+	<configuration-properties doc:name="Configuration properties" doc:id="77f644e2-d7ab-4fe9-b649-ee9fe0c907a7" file="mule-app.properties" />
+	<flow name="notification-api-spec-main">
+        <http:listener config-ref="notification-api-spec-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="notification-api-spec-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="notification-api-spec-console">
+        <http:listener config-ref="notification-api-spec-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="notification-api-spec-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\notifications\(id):application\json:notification-api-spec-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  meta: {
+    messages: [
+      {
+        severity: "INFO",
+        code: "200",
+        description: "OK",
+        link: {
+          href: "http://localhost",
+          title: "All good!"
+        }
+      }
+    ],
+    totalItems: 2,
+    pagingOffset: 1,
+    pagingLimit: 15
+  },
+  links: {
+    self: {
+      href: "http://localhost/currentPage",
+      title: "Current page"
+    },
+    first: {
+      href: "http://localhost/firstPage",
+      title: "First Page"
+    },
+    prev: {
+      href: "http://localhost/previousPage",
+      title: "Previous page"
+    },
+    next: {
+      href: "http://localhost/nextPage",
+      title: "Next Page"
+    },
+    last: {
+      href: "http://localhost/lastPage",
+      title: "Last Page"
+    }
+  },
+  messages: [
+    {
+      itemKey: "111111",
+      severity: "INFO",
+      code: "409",
+      description: "Duplicate record exists"
+    }, 
+    {
+      itemKey: "2222222",
+      severity: "INFO",
+      code: "202",
+      description: "Request accepted"
+    }, 
+    {
+      itemKey: "3333333",
+      severity: "INFO",
+      code: "202",
+      description: "Request accepted"
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\notifications\(id):notification-api-spec-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  meta: {
+    messages: [
+      {
+        severity: "INFO",
+        code: "200",
+        description: "OK",
+        link: {
+          href: "http://localhost",
+          title: "All good!"
+        }
+      }
+    ],
+    totalItems: 2,
+    pagingOffset: 1,
+    pagingLimit: 15
+  },
+  links: {
+    self: {
+      href: "http://localhost/currentPage",
+      title: "Current page"
+    },
+    first: {
+      href: "http://localhost/firstPage",
+      title: "First Page"
+    },
+    prev: {
+      href: "http://localhost/previousPage",
+      title: "Previous page"
+    },
+    next: {
+      href: "http://localhost/nextPage",
+      title: "Next Page"
+    },
+    last: {
+      href: "http://localhost/lastPage",
+      title: "Last Page"
+    }
+  },
+  messages: [
+    {
+      itemKey: "111111",
+      severity: "INFO",
+      code: "409",
+      description: "Duplicate record exists"
+    }, 
+    {
+      itemKey: "2222222",
+      severity: "INFO",
+      code: "202",
+      description: "Request accepted"
+    }, 
+    {
+      itemKey: "3333333",
+      severity: "INFO",
+      code: "202",
+      description: "Request accepted"
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\notifications:notification-api-spec-config">
+        <logger level="INFO" message="get:\notifications:notification-api-spec-config" />
+    </flow>
+    <flow name="get:\notifications\(id):notification-api-spec-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="get:\notifications\(id):notification-api-spec-config" />
+    </flow>
+    <flow name="post:\notifications:application\json:notification-api-spec-config">
+		<ee:transform doc:name="Set Variables" doc:id="da0c1ef7-73dc-4a25-9808-0dd92d6a5c18" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="responses" ><![CDATA[%dw 2.0
+output application/java
+---
+[]]]></ee:set-variable>
+				<ee:set-variable variableName="emailList" ><![CDATA[%dw 2.0
+output application/java
+---
+[]]]></ee:set-variable>
+				<ee:set-variable variableName="smsList" ><![CDATA[%dw 2.0
+output application/java
+---
+[]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="50ddc74a-87e4-40f0-a58c-b8aae35385a9" >
+			<choice doc:name="Choice" doc:id="c91c4d71-1991-4fb1-874a-f6edc7267673" >
+				<when expression="#[payload.&quot;type&quot; == 'email']" >
+					<ee:transform doc:name="Aggregate Emails" doc:id="f7147c4a-c53b-4d8f-995c-8823a19d9d95" >
+						<ee:message />
+						<ee:variables >
+							<ee:set-variable variableName="emailList" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.emailList as Array ++ [payload]]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</when>
+				<when expression="#[payload.&quot;type&quot; == 'SMS']" >
+					<ee:transform doc:name="Aggregate SMSs" doc:id="be4b0b4a-32b7-4ae7-85cd-d48fadc8aba7">
+						<ee:message />
+						<ee:variables>
+							<ee:set-variable variableName="smsList" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.smsList as Array ++ [payload]]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</when>
+				<otherwise >
+					<logger level="ERROR" doc:name="Logger" doc:id="eae0fc31-e57b-4664-b305-15c68b87cd54" message="#[output application/json ---payload]"/>
+				</otherwise>
+			</choice>
+		</foreach>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="94d77b52-361a-472a-86f9-8a8f5d17ab0f" >
+			<route >
+				<ee:transform doc:name="Set Payload" doc:id="5b7711a1-3db4-4b8e-9b37-aecd9a20dd0f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.emailList]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<notification-apifor-gmail-spec:create-notification doc:name="Send Email Notification with GMail" doc:id="0f40fb77-147d-48f8-b0a0-91e0c8196777" config-ref="Notification_API_for_GMail_Spec_Config" />
+			</route>
+			<route >
+				<ee:transform doc:name="Set Payload" doc:id="00dc6e23-0948-4a1a-a1dc-b100b16d0b7b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.smsList]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<notification-apifor-twilio-spec:create-notification doc:name="Send SMS Notification with Twilio" doc:id="6833b224-e744-4c3d-9fc9-b4bda0b54372" config-ref="Notification_API_for_Twilio_Spec_Config" />
+			</route>
+		</scatter-gather>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="49b2d34d-937b-48c4-a7cb-e324a3cf706f">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	meta: {
+		totalItems: payload[0].payload.meta.totalItems as Number + payload[1].payload.meta.totalItems as Number
+	},
+	messages: (payload[0].payload.messages ++ payload[1].payload.messages) map {
+		itemId: $.itemId,
+		severity: $.severity,
+		code: $.code,
+		description: $.description
+	}
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>
