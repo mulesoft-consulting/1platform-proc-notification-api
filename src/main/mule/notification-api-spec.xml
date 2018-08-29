@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		</http:listener-connection>
     </http:listener-config>
     <apikit:config name="notification-api-spec-config" raml="notification-api-spec.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <api-gateway:autodiscovery apiId="15522487" doc:name="API Autodiscovery" doc:id="1b3eb301-f21a-41b7-833f-93bfeafb4be3" flowRef="notification-api-spec-main" />
+    <api-gateway:autodiscovery apiId="${autodiscovery.api.id}" doc:name="API Autodiscovery" doc:id="1b3eb301-f21a-41b7-833f-93bfeafb4be3" flowRef="notification-api-spec-main" />
 	<notification-apifor-gmail-spec:config name="Notification_API_for_GMail_Spec_Config" doc:name="Notification API for GMail Spec Config" doc:id="635c1260-7f9c-4741-80a0-9db5cfd435c0" property_host="${notification.sapi.gmail.url}" property_port="443" property_basePath="/api" property_protocol="HTTPS" property_client-id="${client.app.client_id}" property_client-secret="${client.app.client_secret}" />
 	<notification-apifor-twilio-spec:config name="Notification_API_for_Twilio_Spec_Config" doc:name="Notification API for Twilio Spec Config" doc:id="9128a001-09d5-4a03-9da0-6148ddf3f1a3" property_host="${notification.sapi.twilio.url}" property_port="443" property_basePath="/api" property_protocol="HTTPS" property_client-id="${client.app.client_id}" property_client-secret="${client.app.client_secret}" />
 	<configuration-properties doc:name="Configuration properties" doc:id="77f644e2-d7ab-4fe9-b649-ee9fe0c907a7" file="mule-app.properties" />
