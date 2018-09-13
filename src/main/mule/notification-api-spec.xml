@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:notification-apifor-twilio-spec="http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec" xmlns:notification-apifor-gmail-spec="http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:notification-apispec="http://www.mulesoft.org/schema/mule/notification-apispec" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:notification-apifor-twilio-spec="http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec" xmlns:notification-apifor-gmail-spec="http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec/current/mule-notification-apifor-gmail-spec.xsd
 http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec/current/mule-notification-apifor-twilio-spec.xsd
 http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/notification-apispec http://www.mulesoft.org/schema/mule/notification-apispec/current/mule-notification-apispec.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
     <http:listener-config name="notification-api-spec-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS">
 			<tls:context >
@@ -136,164 +138,28 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="put:\notifications\(id):application\json:notification-api-spec-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
+	<flow name="get:\notifications\(id):notification-api-spec-config">
+		<notification-apifor-twilio-spec:get doc:id="3fbd2a1c-bfe7-4e1e-a6b3-844bde2ac746" doc:name="Get Notification from Twilio" config-ref="Notification_API_for_Twilio_Spec_Config" id="#[attributes.uriParams.id]"/>
+		<choice doc:name="Choice" doc:id="4aa2d425-b021-4434-8b8b-10d672196404" >
+			<when expression="#[payload == null]" >
+				<ee:transform doc:name="Transform Message" doc:id="c60fe28d-f2d0-46f9-8fbd-162b5a497217" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  meta: {
-    messages: [
-      {
-        severity: "INFO",
-        code: "200",
-        description: "OK",
-        link: {
-          href: "http://localhost",
-          title: "All good!"
-        }
-      }
-    ],
-    totalItems: 2,
-    pagingOffset: 1,
-    pagingLimit: 15
-  },
-  links: {
-    self: {
-      href: "http://localhost/currentPage",
-      title: "Current page"
-    },
-    first: {
-      href: "http://localhost/firstPage",
-      title: "First Page"
-    },
-    prev: {
-      href: "http://localhost/previousPage",
-      title: "Previous page"
-    },
-    next: {
-      href: "http://localhost/nextPage",
-      title: "Next Page"
-    },
-    last: {
-      href: "http://localhost/lastPage",
-      title: "Last Page"
-    }
-  },
-  messages: [
-    {
-      itemKey: "111111",
-      severity: "INFO",
-      code: "409",
-      description: "Duplicate record exists"
-    }, 
-    {
-      itemKey: "2222222",
-      severity: "INFO",
-      code: "202",
-      description: "Request accepted"
-    }, 
-    {
-      itemKey: "3333333",
-      severity: "INFO",
-      code: "202",
-      description: "Request accepted"
-    }
-  ]
+	message: "resource not found"
 }]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-    </flow>
-    <flow name="delete:\notifications\(id):notification-api-spec-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
 ---
-{
-  meta: {
-    messages: [
-      {
-        severity: "INFO",
-        code: "200",
-        description: "OK",
-        link: {
-          href: "http://localhost",
-          title: "All good!"
-        }
-      }
-    ],
-    totalItems: 2,
-    pagingOffset: 1,
-    pagingLimit: 15
-  },
-  links: {
-    self: {
-      href: "http://localhost/currentPage",
-      title: "Current page"
-    },
-    first: {
-      href: "http://localhost/firstPage",
-      title: "First Page"
-    },
-    prev: {
-      href: "http://localhost/previousPage",
-      title: "Previous page"
-    },
-    next: {
-      href: "http://localhost/nextPage",
-      title: "Next Page"
-    },
-    last: {
-      href: "http://localhost/lastPage",
-      title: "Last Page"
-    }
-  },
-  messages: [
-    {
-      itemKey: "111111",
-      severity: "INFO",
-      code: "409",
-      description: "Duplicate record exists"
-    }, 
-    {
-      itemKey: "2222222",
-      severity: "INFO",
-      code: "202",
-      description: "Request accepted"
-    }, 
-    {
-      itemKey: "3333333",
-      severity: "INFO",
-      code: "202",
-      description: "Request accepted"
-    }
-  ]
-}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-    </flow>
-    <flow name="get:\notifications:notification-api-spec-config">
-        <logger level="INFO" message="get:\notifications:notification-api-spec-config" />
-    </flow>
-    <flow name="get:\notifications\(id):notification-api-spec-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <logger level="INFO" message="get:\notifications\(id):notification-api-spec-config" />
+404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+		</choice>
     </flow>
     <flow name="post:\notifications:application\json:notification-api-spec-config">
 		<ee:transform doc:name="Set Variables" doc:id="da0c1ef7-73dc-4a25-9808-0dd92d6a5c18" >

@@ -52,13 +52,25 @@
     	<dependency>
             <groupId>b2cc42af-8763-43cf-a316-246ce7aefd04</groupId>
             <artifactId>notification-api-for-gmail</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
             <classifier>mule-plugin</classifier>
         </dependency>
     	<dependency>
             <groupId>b2cc42af-8763-43cf-a316-246ce7aefd04</groupId>
             <artifactId>notification-api-for-twilio</artifactId>
             <version>1.0.2</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+    	<dependency>
+            <groupId>b2cc42af-8763-43cf-a316-246ce7aefd04</groupId>
+            <artifactId>notification-api-spec</artifactId>
+            <version>1.0.4</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+    	<dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-validation-module</artifactId>
+            <version>1.2.2</version>
             <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
