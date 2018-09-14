@@ -67,12 +67,6 @@
             <version>1.0.4</version>
             <classifier>mule-plugin</classifier>
         </dependency>
-    	<dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-validation-module</artifactId>
-            <version>1.2.2</version>
-            <classifier>mule-plugin</classifier>
-        </dependency>
     </dependencies>
 
 	<repositories>
