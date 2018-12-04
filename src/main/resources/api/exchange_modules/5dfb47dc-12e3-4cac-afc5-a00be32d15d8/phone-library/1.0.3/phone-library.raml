@@ -1,0 +1,20 @@
+#%RAML 1.0 Library
+usage: Defines the common structure for a phone
+
+types: 
+  phone:
+    properties:
+      type?: 
+        enum: [Mobile, Home, Work, Corporate]
+        example: Mobile
+      phoneNumber: 
+        example: 415-030-2033
+      preferred?: 
+        type: boolean
+        example: true
+      doNotCall?: 
+        type: boolean
+        example: false
+      doNotText?: 
+        type: boolean
+        example: true

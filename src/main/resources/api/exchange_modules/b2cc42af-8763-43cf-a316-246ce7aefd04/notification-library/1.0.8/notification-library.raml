@@ -1,0 +1,45 @@
+#%RAML 1.0 Library
+uses: 
+  address: /exchange_modules/5dfb47dc-12e3-4cac-afc5-a00be32d15d8/postal-address-library/1.0.4/postal-address-library.raml
+  phone: /exchange_modules/5dfb47dc-12e3-4cac-afc5-a00be32d15d8/phone-library/1.0.3/phone-library.raml
+  common: /exchange_modules/5dfb47dc-12e3-4cac-afc5-a00be32d15d8/common-library/1.0.12/common-library.raml
+  collection: /exchange_modules/5dfb47dc-12e3-4cac-afc5-a00be32d15d8/collection-library/1.0.30/collection-library.raml
+
+types:
+  Notification:
+    type: object
+    properties:
+      id?: 
+      type:
+        description: Default will use the default notification setting specified in the Notification.
+        enum: [Postal, snapchat, Slack, SMS, email]
+        default: email
+        example: email
+      recipient: 
+        type: string | integer
+        default: brett@gmail.com
+        example: brett@gmail.com
+      subject?: 
+        default: Hello
+        example: Hello
+      priority:
+        type: string
+        enum: [ Info, Warning, Critical, Urgent ]
+        default: Info
+        example: Info
+      message:
+        default: Hello!
+        example: Hello!
+    example: !include examples/member.raml
+  
+  NotificationCollection:
+    type:  Notification[]
+    example: !include examples/collection.raml
+
+  NotificationCollectionResponse:
+    type: collection.CollectionResponse
+    properties:
+      notifications: 
+        type: Notification[]
+        required: false
+    example: !include examples/collectionResponse.raml

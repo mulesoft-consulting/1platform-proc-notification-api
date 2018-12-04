@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:notification-apifor-twilio-spec="http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec" xmlns:notification-apifor-gmail-spec="http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec http://www.mulesoft.org/schema/mule/notification-apifor-gmail-spec/current/mule-notification-apifor-gmail-spec.xsd
+http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec http://www.mulesoft.org/schema/mule/notification-apifor-twilio-spec/current/mule-notification-apifor-twilio-spec.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="d18783c8-42c2-4d0c-823a-3b29f9e7b439" file="config/configuration.yaml" />
+	<api-gateway:autodiscovery apiId="${api.autodiscovery}" doc:name="API Autodiscovery" doc:id="aeaaf812-b144-43d0-995d-b664372cc982" flowRef="notification-api-spec-main" />
+	<notification-apifor-gmail-spec:config name="Notification_API_for_GMail_Spec_Config" doc:name="Notification API for GMail Spec Config" doc:id="dfd95f05-8194-410d-b2aa-1c83550b16c1" property_host="${notification.sapi.gmail.url}" property_port="443" property_basePath="/api" property_protocol="HTTPS" property_client-id="${app.client_id}" property_client-secret="${app.client_secret}" />
+	<notification-apifor-twilio-spec:config name="Notification_API_for_Twilio_Spec_Config" doc:name="Notification API for Twilio Spec Config" doc:id="61ae8dbe-f1b7-42d8-8678-dbf6cabbd204" property_host="${notification.sapi.twilio.url}" property_port="443" property_basePath="/api" property_protocol="HTTPS" property_client-id="${app.client_id}" property_client-secret="${app.client_secret}" />
+</mule>

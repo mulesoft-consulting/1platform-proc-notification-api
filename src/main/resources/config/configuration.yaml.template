@@ -1,0 +1,29 @@
+https:
+  port:
+
+anypoint:
+  platform:
+    analytics_base_uri:
+    client_id:
+    client_secret:
+    base_uri:
+    visualizer:
+      layer:
+
+api:
+  autodiscovery:
+
+keystore: 
+  password:
+
+notification:
+  sapi:
+    gmail: 
+      url:
+
+    twilio:
+      url:
+
+app: 
+  client_id:
+  client_secret:
