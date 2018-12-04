@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
-        configFileProvider([configFile(fileId: "${BRANCH_NAME}-proc-notification-api", replaceTokens: true, targetLocation: './src/main/resources/config/configuration.yaml')]) {
+        configFileProvider([configFile(fileId: "${BRANCH_NAME}-proc-notification-api.yaml", replaceTokens: true, targetLocation: './src/main/resources/config/configuration.yaml')]) {
           sh 'echo "Branch NAME: $BRANCH_NAME"'
         }
         withCredentials([file(credentialsId: 'self-signed-keystore.jks', variable: 'KEYSTORE_PATH')]){  
