@@ -135,27 +135,22 @@ output application/json
         </error-handler>
     </flow>
 	<flow name="get:\notifications\(id):notification-api-spec-config">
-		<notification-apifor-twilio-spec:get doc:id="3fbd2a1c-bfe7-4e1e-a6b3-844bde2ac746" doc:name="Get Notification from Twilio" config-ref="Notification_API_for_Twilio_Spec_Config" id="#[attributes.uriParams.id]"/>
-		<choice doc:name="Choice" doc:id="4aa2d425-b021-4434-8b8b-10d672196404" >
-			<when expression="#[payload == null]" >
-				<ee:transform doc:name="Transform Message" doc:id="c60fe28d-f2d0-46f9-8fbd-162b5a497217" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+		<ee:transform doc:name="Transform Message" doc:id="c60fe28d-f2d0-46f9-8fbd-162b5a497217">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message: "resource not found"
 }]]></ee:set-payload>
 					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
 output application/java
 ---
 404]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-			</when>
-		</choice>
     </flow>
     <flow name="post:\notifications:application\json:notification-api-spec-config">
 		<ee:transform doc:name="Set Variables" doc:id="da0c1ef7-73dc-4a25-9808-0dd92d6a5c18" >
@@ -189,11 +184,11 @@ vars.emailList as Array ++ [payload]]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
 				</when>
-				<when expression="#[payload.&quot;type&quot; == 'SMS']" >
+				<when expression="#[payload.&quot;type&quot; == 'SMS']">
 					<ee:transform doc:name="Aggregate SMSs" doc:id="be4b0b4a-32b7-4ae7-85cd-d48fadc8aba7">
 						<ee:message />
 						<ee:variables>
-							<ee:set-variable variableName="smsList" ><![CDATA[%dw 2.0
+							<ee:set-variable variableName="smsList"><![CDATA[%dw 2.0
 output application/java
 ---
 vars.smsList as Array ++ [payload]]]></ee:set-variable>
@@ -223,10 +218,16 @@ vars.emailList]]></ee:set-payload>
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/java
 ---
-vars.smsList]]></ee:set-payload>
+//vars.smsList
+{
+	meta: {
+		totalItems: 0
+	},
+	messages: []
+}]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<notification-apifor-twilio-spec:create-notification doc:name="Send SMS Notification with Twilio" doc:id="6833b224-e744-4c3d-9fc9-b4bda0b54372" config-ref="Notification_API_for_Twilio_Spec_Config" />
+				<logger level="INFO" doc:name="Logger" doc:id="0eddceb3-e672-43b4-82ea-752678dfb6bf" message="#['I should send an SMS, but this function is disabled for now.']"/>
 			</route>
 		</scatter-gather>
 		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="

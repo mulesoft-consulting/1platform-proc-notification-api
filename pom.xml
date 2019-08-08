@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mulesoft.1platform</groupId>
@@ -14,8 +13,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<app.runtime>4.1.3</app.runtime>
-		<mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
+		<app.runtime>4.2.0</app.runtime>
+		<mule.maven.plugin.version>3.2.7</mule.maven.plugin.version>
 	</properties>
 
 	<build>
@@ -43,6 +42,7 @@
 							<anypoint.platform.platform_base_uri>https://anypoint.mulesoft.com/apiplatform</anypoint.platform.platform_base_uri>
 							<anypoint.platform.contracts_base_uri>https://anypoint.mulesoft.com/apigateway/ccs</anypoint.platform.contracts_base_uri>
 							<anypoint.platform.visualizer.layer>Process</anypoint.platform.visualizer.layer>
+							<anypoint.platform.config.analytics.agent.enabled>true</anypoint.platform.config.analytics.agent.enabled>
 							<anypoint.platform.client_id>${env.ANYPOINT_CLIENT_ID}</anypoint.platform.client_id>
 							<anypoint.platform.client_secret>${env.ANYPOINT_CLIENT_SECRET}</anypoint.platform.client_secret>
 							<app.client_id>${env.APP_CLIENT_ID}</app.client_id>
@@ -77,12 +77,6 @@
 			<groupId>b2cc42af-8763-43cf-a316-246ce7aefd04</groupId>
 			<artifactId>notification-api-for-gmail</artifactId>
 			<version>1.0.4</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>b2cc42af-8763-43cf-a316-246ce7aefd04</groupId>
-			<artifactId>notification-api-for-twilio</artifactId>
-			<version>1.0.2</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
